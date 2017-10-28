@@ -24,7 +24,10 @@ module.exports = {
     return _config.botName || 'โมโมกะ'
   },
   get mongoURL () {
-    return _config.mongoURL || 'mongodb://localhost:27017/momoka'
+    if (process.env.NODE_ENV === 'test') {
+      return 'mongodb://localhost:27017/momoka'
+    }
+    return _config.mongoURL
   },
   get domain () {
     return _config.domain

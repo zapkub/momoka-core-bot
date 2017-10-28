@@ -76,6 +76,9 @@ class LineAdapter extends MesssengerAdapter {
             return undefined
           }
           console.log('Response: ', message, replyToken)
+          if (responseMessages.length > 5) {
+            throw new Error(chalk.red('Line: Response message maximum length is 5 messages'))
+          }
           await this.client.replyMessage(replyToken, responseMessages)
           console.log(chalk.bgGreen(`Response ${responseMessages.length} messages to Line: ${(new Date()).toISOString()} `))
         } catch (e) {
