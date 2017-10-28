@@ -3,3 +3,10 @@ node_modules
 dist
 __test__
 __tests__
+docker-compose.yml
+*.md
+*.yml
+LICENSE
+*.log
+docs
+.db
