@@ -30,7 +30,10 @@ function mapEventWithStrategies (event, strategies) {
   }
 }
 function shortcutParse (text) {
-  return text.match(/(^[a-zA-Z]{6}$)|(^[a-zA-Z]{3}\s[a-zA-Z]{3}$)|compare/)
+  if (config.shortcutRegex) {
+    return config.shortcutRegex.test(text)
+  }
+  return false
 }
 module.exports = (strategies) => function (event) {
   console.log(event)

@@ -3,6 +3,7 @@ require('dotenv').config({path: path.join(__dirname, './.env') })
 
 let _config = {
   port: process.env.PORT,
+  shortcutRegex: /^hello from (.+)$/,
   botName: process.env.BOT_NAME,
   mongoURL: process.env.MONGODB_URL,
   domain: process.env.DOMAIN,

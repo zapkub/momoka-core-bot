@@ -14,6 +14,9 @@ module.exports = {
     throwConfigError(config, 'line')
     _config = config
   },
+  get shortcutRegex () {
+    return _config.shortcutRegex
+  },
   get port () {
     return _config.port
   },
