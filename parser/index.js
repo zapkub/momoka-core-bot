@@ -8,9 +8,11 @@ function mapEventWithStrategies (event, strategies) {
     ...eventsMapper,
     ...strategies
   ]
+  console.log(strategies)
   if (event.type === 'message') {
     for (let mapper of mappers) {
       if (event.text.match(mapper.test)) {
+        console.log('parser: msg match => ' + mapper.action)
         const mapperObject = Object.assign({
           mapToPayload: () => ({})
         }, mapper)
