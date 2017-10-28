@@ -1,5 +1,5 @@
 {
-  "name": "momoka-crypto-bot",
+  "name": "momoka-core-bot",
   "version": "2.6.0",
   "main": "index.js",
   "license": "MIT",
