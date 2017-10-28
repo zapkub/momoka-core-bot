@@ -63,6 +63,9 @@ async function initApp (_config, strategies) {
     start () {
       app.listen(config.port, function () {
         console.log(chalk.bgGreen('==== app is start on ' + config.port + ' ===='))
+        if (!connection) {
+          return
+        }
         if (connection.readyState === 1) {
           console.log('Notification service is online')
           const notificationService = require('./adapter/notification.service')
