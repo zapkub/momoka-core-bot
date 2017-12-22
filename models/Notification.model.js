@@ -9,6 +9,10 @@ const NotificationSchema = new mongoose.Schema({
     operation: String,
     value: Number
   },
+  count: {
+    type: Number,
+    default: 0
+  },
   actionType: String,
   payload: JSON,
   interval: Number,

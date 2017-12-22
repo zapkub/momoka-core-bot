@@ -33,6 +33,7 @@ async function initApp (_config, strategies) {
   if (config.mongoURL) {
     try {
       connection = await DBConnection(config.mongoURL)
+      config.connection = connection
     } catch (e) {
       console.log('no db, notification service will be offline')
     }

@@ -1,4 +1,3 @@
-
 const notificationService = require('../notification.service')
 const ACTIONS = require('../../parser/actions')
 const createParser = require('../../parser')
@@ -36,12 +35,52 @@ class MessengerAdapter {
     // console.log('action type: ' + actionType)
     for (let strategy of this.__strategies) {
       if (strategy.action === actionType) {
-        const result = await strategy.resolve.bind(this)({ payload, type: actionType })
-        const msg = await strategy.conditionResolve(undefined, result, notification, this.__config)
-        if (msg) {
-          msg.text = `${msg.text}\n` +
-        `dismiss: ${this.__config.domain}/${this.__provider.toLowerCase()}/cancel_noti/${notification._id}`
-          return msg
+        try {
+          const result = await strategy.resolve.bind(this)({
+            payload,
+            type: actionType
+          })
+          const msg = await strategy.conditionResolve(
+            undefined,
+            result,
+            notification,
+            this.__config
+          )
+          if (msg) {
+            notification.count = notification.count + 1
+            await notification.save()
+            msg.text =
+              `${msg.text}\n` +
+              `เตือนครั้งที่ (${notification.count}/10) \nยกเลิก: ${
+                this.__config.domain
+              }/${this.__provider.toLowerCase()}/cancel_noti/${
+                notification._id
+              }`
+
+            if (notification.count > 5) {
+              await this.getResponseMessage({
+                type: ACTIONS.CANCEL_ALERT,
+                payload: {
+                  id: notification._id.toString()
+                }
+              })
+            }
+            return msg
+          }
+        } catch (e) {
+          console.error(e)
+          await this.getResponseMessage({
+            type: ACTIONS.CANCEL_ALERT,
+            payload: {
+              id: notification._id
+            }
+          })
+          return {
+            type: 'text',
+            text: `ดูเหมือนว่าคำสั่งเตือน ${
+              notification.command
+            } จะมีปัญหา โมโมกะขออนุญาติลบทิ้งค่ะ`
+          }
         }
       }
     }
@@ -88,11 +127,21 @@ class MessengerAdapter {
     action.provider = this.__provider
     for (let strategy of this.__strategies) {
       if (strategy.action === action.type) {
-        const result = await strategy.resolve.bind(this)(action)
-        const msg = await strategy.messageReducer(undefined, result)
+        let msg
+        try {
+          const result = await strategy.resolve.bind(this)(action)
+          msg = await strategy.messageReducer(undefined, result)
+          // support array msg return
+          // allow strategy to send multiple response text
+          if (Array.isArray(msg)) {
+            return msg
+          } else {
+            return [msg]
+          }
+        } catch (e) {
+          msg = await strategy.messageReducer(e)
+        }
 
-        // support array msg return
-        // allow strategy to send multiple response text
         if (Array.isArray(msg)) {
           return msg
         } else {
@@ -102,7 +151,9 @@ class MessengerAdapter {
     }
     switch (action.type) {
       case ACTIONS.LIST_ALERT: {
-        const result = await notificationService.getNotificationFromReception(action.source.groupId || action.source.userId)
+        const result = await notificationService.getNotificationFromReception(
+          action.source.groupId || action.source.userId
+        )
         if (!result.length) {
           return {
             type: 'text',
@@ -110,7 +161,9 @@ class MessengerAdapter {
           }
         }
         const notiStrList = result.map((noti, index) => {
-          return `${noti.command}: ${noti.condition.operation} ${noti.condition.value} (${noti._id})\n\n`
+          return `${noti.command}: ${noti.condition.operation} ${
+            noti.condition.value
+          } (${noti._id})\n\n`
         })
         return {
           type: 'text',
