@@ -69,7 +69,17 @@ class LineAdapter extends MesssengerAdapter {
           text: event.message.text,
           source
         })
-        console.log(`Text: "${event.message.text}"`)
+        if (!action) {
+          if (event.message.text === 'Hello, world') {
+            await this.client.replyMessage(replyToken, {
+              type: 'text',
+              text: 'test'
+            })
+            console.log('reply...')
+            return
+          }
+        }
+
         try {
           const responseMessages = await this.getResponseMessage(action)
           if (!responseMessages) {

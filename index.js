@@ -6,6 +6,7 @@
 
 require('isomorphic-fetch')
 const config = require('./config')
+const path = require('path')
 const chalk = require('chalk')
 const DBConnection = require('./lib/DBConnection')
 
@@ -17,7 +18,6 @@ const bodyParser = require('body-parser')
 const app = require('express')()
 
 const fs = require('fs')
-const path = require('path')
 const showdown = require('showdown')
 const converter = new showdown.Converter()
 
@@ -49,7 +49,12 @@ async function initApp (_config, strategies) {
   for (let strategy of strategies) {
     console.log(`Add strategy action: ${strategy.action}`)
   }
+
+  // read multiple endpoint config
+  // const multipleEndpointConfig = fs.readFileSync(path.join(__dirname, './config.json'))
+
   app.use('/line', lineBot(strategies, config))
+
   app.use('/facebook', facebookBot(strategies, config))
 
   function onSigterm () {
@@ -61,6 +66,9 @@ async function initApp (_config, strategies) {
   process.on('SIGTERM', onSigterm)
   process.on('SIGINT', onSigterm)
   return {
+    addLineBot (endpoint, newConfig) {
+      app.use(endpoint, lineBot(strategies, newConfig))
+    },
     start () {
       app.listen(config.port, function () {
         console.log(chalk.bgGreen('==== app is start on ' + config.port + ' ===='))
