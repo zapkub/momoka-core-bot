@@ -1,6 +1,6 @@
 {
   "name": "momoka-core-bot",
-  "version": "2.6.6",
+  "version": "2.7.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
