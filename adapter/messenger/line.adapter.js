@@ -7,11 +7,12 @@ const API_ENDPOINT = 'https://api.line.me/v2/bot/message/push'
 class LineAdapter extends MesssengerAdapter {
   constructor (strategies, config) {
     super(strategies, config)
-    const { channelAccessToken, channelSecret } = config
+    const { channelAccessToken, channelSecret, channelId } = config
     console.log(chalk.yellow('Init LINE adapter'))
     this.__provider = 'LINE'
     this.channelAccessToken = channelAccessToken
     this.channelSecret = channelSecret
+    this.channelId = channelId
     this.client = new line.Client({
       channelAccessToken,
       channelSecret
@@ -57,6 +58,7 @@ class LineAdapter extends MesssengerAdapter {
   }
 
   async requestHandler (req, res) {
+    console.log(req.body)
     const { events } = req.body
     const responseResultPromises = events.map(async event => {
       const { source, replyToken, type, message } = event
@@ -81,7 +83,13 @@ class LineAdapter extends MesssengerAdapter {
         }
 
         try {
-          const responseMessages = await this.getResponseMessage(action)
+          // send action and messenger provider identifier and config
+          const responseMessages = await this.getResponseMessage(action, {
+            type: 'line',
+            id: this.channelId,
+            secret: this.channelSecret,
+            accessToken: this.channelAccessToken
+          })
           if (!responseMessages) {
             return undefined
           }
@@ -110,6 +118,7 @@ module.exports = function (strategies, config) {
   const middleware = Router()
   const lineClient = new LineAdapter(strategies, {
     ...config,
+    channelId: id,
     channelAccessToken: token,
     channelSecret: secret
   })

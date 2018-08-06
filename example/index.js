@@ -64,7 +64,7 @@ const simpleStrategies = [
       }
       return ''
     },
-    resolve: async action => {
+    resolve: async (action, provider) => {
       // try to resolve your data from
       // action payload
       return action.payload.name.toUpperCase()

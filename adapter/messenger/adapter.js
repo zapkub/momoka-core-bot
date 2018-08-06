@@ -115,7 +115,7 @@ class MessengerAdapter {
     }
   }
   // Response message generate here
-  async getResponseMessage (action) {
+  async getResponseMessage (action, providerInformation) {
     console.log('Messenger: get response with action')
     if (!action) {
       console.log('no action found')
@@ -129,7 +129,7 @@ class MessengerAdapter {
       if (strategy.action === action.type) {
         let msg
         try {
-          const result = await strategy.resolve.bind(this)(action)
+          const result = await strategy.resolve.bind(this)(action, providerInformation)
           msg = await strategy.messageReducer(undefined, result)
           // support array msg return
           // allow strategy to send multiple response text
